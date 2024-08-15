@@ -43,7 +43,7 @@ cd %PROJECT_DIR%
 REM 执行生成的可执行文件
 if exist %BUILD_DIR%\Release\mtf.exe (
     echo Running mtf.exe...
-    %BUILD_DIR%\Release\mtf.exe
+    %BUILD_DIR%\Release\mtf.exe "Edge.pgm" linear 130 100 100 200 500
 ) else (
     echo Build succeeded but mtf.exe not found.
 )
