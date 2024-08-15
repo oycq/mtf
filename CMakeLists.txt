@@ -17,7 +17,7 @@ add_executable(mtf ${SRC} ${INCLUDE})
 
 # 设置编译选项
 if(MSVC)
-    target_compile_options(mtf PRIVATE /W3)
+    target_compile_options(mtf PRIVATE /W0)
 else()
     target_compile_options(mtf PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
