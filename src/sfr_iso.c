@@ -62,10 +62,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <math.h>
 
-extern FILE *g_mtfout;
-#include "sfr.h"
 /*****************************************************************************/
-
+#define M_PI  3.14159265358979323846
 #define ALPHA 4.0
 #define ESFFILE 8
 #define DER3 4
@@ -173,8 +171,8 @@ short sfrProc (double **freq, double **sfr,
     if (err != 0)     { return 3; }
     
     if (version)
-      MTFPRINT4("\nLinear Fit:  R2 = %.3f SE_intercept = %.2f  SE_angle = %.3f\n",  
-	      *R2, avar, atan(bvar)*(double)(180.0/M_PI))
+      printf("\nLinear Fit:  R2 = %.3f SE_intercept = %.2f  SE_angle = %.3f\n",
+	      *R2, avar, atan(bvar)*(double)(180.0/M_PI));
   }
 
   /* Check slope is OK, and set size_y to be full multiple of cycles */
@@ -267,13 +265,13 @@ short sfrProc (double **freq, double **sfr,
   free(temp);
 
   if(version)
-    MTFPRINT3("Off center distance (1/4 pixel units): Peak %ld  Centroid %.2f\n", 
-	      pcnt-bin_len/2, centroid-bin_len/2)
+    printf("Off center distance (1/4 pixel units): Peak %ld  Centroid %.2f\n", 
+	      pcnt-bin_len/2, centroid-bin_len/2);
 
   if((version & PEAK) == 0)
     pcnt = bin_len/2;  /* Ignore derivative peak */
   else
-    MTFPRINT("Shifting peak to center\n")
+    printf("Shifting peak to center\n");
 
   /* Here the array length is shortened to ww_in_pixels*ALPHA,
      and the LSF peak is centered and Hamming windowed. */

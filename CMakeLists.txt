@@ -9,8 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 # 查找所有源文件和头文件
-file(GLOB_RECURSE SRC "src/*.c" "src/*.cpp")
+# file(GLOB_RECURSE SRC "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE INCLUDE "include/*.h" "include/*.hpp")
+file(GLOB_RECURSE SRC "src/sfr_iso.c" "src/sfr_iso_oycq.c" "src/main.c")
 
 # 添加可执行文件
 add_executable(mtf ${SRC} ${INCLUDE})
