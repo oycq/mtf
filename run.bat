@@ -43,12 +43,12 @@ cd %PROJECT_DIR%
 REM 执行生成的可执行文件
 if exist %BUILD_DIR%\Release\mtf.exe (
     echo Running mtf.exe...
-    %BUILD_DIR%\Release\mtf.exe "Edge.pgm" linear 130 100 100 200 500
+    %BUILD_DIR%\Release\mtf.exe
 ) else (
     echo Build succeeded but mtf.exe not found.
 )
 
-py scripts/show_c_result.py
+REM py scripts/show_c_result.py
 
 endlocal
 REM pause
