@@ -12,12 +12,5 @@ with open('output.raw', 'rb') as f:
 # 将数据转换为 numpy 数组并重塑为图像
 image = np.frombuffer(raw_data, dtype=np.uint8).reshape((height, width))
 
-# 显示图像
-input_img = cv2.imread("board_640_480.png")
-input_img = input_img.astype(np.float32)
-input_img[:,:,1] += image // 4
-input_img = input_img / 256
-cv2.imshow('input_img', input_img)
-cv2.imshow('Raw Image', image)
+cv2.imshow('output', image)
 cv2.waitKey(0)
-cv2.destroyAllWindows()

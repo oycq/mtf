@@ -1,23 +1,31 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "sfr_iso_oycq.h"
+#include "get_config.h"
 
-#define W 640
-#define H 480
-#define ROI_W 34
-#define ROI_H 56
-#define TOP_MARGIN 5
-#define THRESH 140
+#define MAX_W 4096
+#define MAX_H 4096
+#define MAX_ROI_W 512
+#define MAX_ROI_H 512
+
+config_t cfg;
 
 #pragma pack(push, 1)
-uint8_t img[H][W];
-uint8_t img_thresh[H][W];
-uint8_t nms_map[H][W];
-double sfr_input[ROI_H][ROI_W];
+uint8_t img[MAX_H][MAX_W];
+uint8_t img_output[MAX_H][MAX_W];
+uint8_t img_thresh[MAX_H][MAX_W];
+uint8_t nms_map[MAX_H][MAX_W];
+double sfr_input[MAX_ROI_H * MAX_ROI_W];
 #pragma pack(pop) 
 
 void find_roi(void)
 {
+    int H = cfg.h;
+    int W = cfg.w;
+    int ROI_W = cfg.roi_w;
+    int ROI_H = cfg.roi_h;
+    int TOP_MARGIN = cfg.top_margin;
+    int THRESH = cfg.thresh;
     //nms_map初始化赋值, 阈值化图像
     for (int row = 0; row < H; row ++)
         for (int col = 0; col < W; col ++)
@@ -68,10 +76,20 @@ void find_roi(void)
             for (int i = 0; i < ROI_H; i++)
                 for (int j = 0; j < ROI_W; j++)
                     nms_map[up + i][left + j] = 255;
+            //绘制
+            for (int i = up; i < down; i++)
+                for (int j = left; j < right; j++)
+                    if ((i == up) || (i == down -1) || (j == left) || (j == right-1))
+                    {
+                        if (img[i][j] < 128)
+                            img_output[i][j] = 128;
+                        else
+                            img_output[i][j] = 128;
+                    }
             //计算sfr
             for (int i = 0; i < ROI_H; i++)
                 for (int j = 0; j < ROI_W; j++)
-                    sfr_input[i][j] = img[up + i][left + j] / 255.0f;
+                    sfr_input[i * ROI_W + j] = img[up + i][left + j] / 255.0f;
             if ((left != 208-1) || (right != 241-1) || (up != 280-1) || (down != 335-1))
 			//if ((left != 154-1) || (right != 187-1) || (up != 71-1) || (down != 126-1))
                 continue;
@@ -90,12 +108,20 @@ void find_roi(void)
 
 int main(void)
 {
-    FILE *img_input = fopen("board_640_480.raw", "rb");
-	fread(img, 1, W*H, img_input);
-    fclose(img_input);
+    cfg = get_config();
+
+    FILE *img_input_f = fopen(cfg.input_img_path, "rb");
+    for (int i = 0; i < cfg.h; i++)
+        fread(img[i], sizeof(unsigned char), cfg.w, img_input_f);
+    fclose(img_input_f);
+
+    memcpy(img_output, img, sizeof(img));
+
     find_roi();
-    FILE *file = fopen("output.raw", "wb");
-    size_t result = fwrite(nms_map, sizeof(uint8_t), W * H, file);
-    fclose(file);
+    FILE *img_output_f = fopen(cfg.output_img_path, "wb");
+    for (int i = 0; i < cfg.h; i++)
+        fwrite(img_output[i], sizeof(unsigned char), cfg.w, img_output_f);
+    fclose(img_output_f);
+
     printf("Done!");
 }
