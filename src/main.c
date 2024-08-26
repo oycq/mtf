@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "sfr_iso_oycq.h"
 #include "get_config.h"
+#include "front_8x8.h"
 
 #define MAX_W 4096
 #define MAX_H 4096
@@ -76,31 +77,45 @@ void find_roi(void)
             for (int i = 0; i < ROI_H; i++)
                 for (int j = 0; j < ROI_W; j++)
                     nms_map[up + i][left + j] = 255;
-            //绘制
+            //计算sfr
+            for (int i = 0; i < ROI_H; i++)
+                for (int j = 0; j < ROI_W; j++)
+                    sfr_input[i * ROI_W + j] = img[up + i][left + j] / 255.0f;
+            sfr_result_t sfr_result;
+            sfr_result = caculate_sfr(ROI_W, ROI_H, sfr_input);
+            //打印结果
+            //if ((left != 208-1) || (right != 241-1) || (up != 280-1) || (down != 335-1))
+			if ((left == 154-1) && (right == 187-1) && (up == 71-1) && (down != 126-1))
+            {
+                printf("%.3f %5d %5d %5d %5d %6.3f %6.4f %6.3f\n",
+                        sfr_result.sfr[0], left+1, right+1, up+1, down+1, 
+                        sfr_result.R2, sfr_result.mtf50, sfr_result.angle);
+                for (int i = 0; i < ROI_W; i++)
+                {
+                    printf("%.3f %.6f\n", i / (float)ROI_W, sfr_result.sfr[i]);
+                }
+            }
+            //绘制方框
             for (int i = up; i < down; i++)
                 for (int j = left; j < right; j++)
                     if ((i == up) || (i == down -1) || (j == left) || (j == right-1))
                     {
                         if (img[i][j] < 128)
-                            img_output[i][j] = 128;
+                            img_output[i][j] = 255;
                         else
-                            img_output[i][j] = 128;
+                            img_output[i][j] = 255;
                     }
-            //计算sfr
-            for (int i = 0; i < ROI_H; i++)
-                for (int j = 0; j < ROI_W; j++)
-                    sfr_input[i * ROI_W + j] = img[up + i][left + j] / 255.0f;
-            if ((left != 208-1) || (right != 241-1) || (up != 280-1) || (down != 335-1))
-			//if ((left != 154-1) || (right != 187-1) || (up != 71-1) || (down != 126-1))
-                continue;
-            sfr_result_t sfr_result;
-            sfr_result = caculate_sfr(ROI_W, ROI_H, sfr_input);
-            printf("%.3f %5d %5d %5d %5d %6.3f %6.4f %6.3f\n", 
-					sfr_result.sfr[0], left+1, right+1, up+1, down+1, 
-					sfr_result.R2, sfr_result.mtf50, sfr_result.angle);
-            for (int i = 0; i < ROI_W; i++)
-            {
-                printf("%.3f %.6f\n", i / (float)ROI_W, sfr_result.sfr[i]);
+            //绘制数字
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) 
+                {
+                    char a = (int)(sfr_result.mtf50 * 100) / 10 + '0';
+                    char b = (int)(sfr_result.mtf50 * 100) % 10 + '0';
+                    if (font8x8_basic[a][i] & (1 << j))
+                        img_output[up + 2 + i][left + 2 + j] = 255;
+                    if (font8x8_basic[b][i] & (1 << j))
+                        img_output[up + 2 + i][left + 10 + j] = 255;
+                }
             }
         }
     }
