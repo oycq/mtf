@@ -14,9 +14,11 @@ typedef struct {
     char output_img_path[MAX_STR_LEN];
     int field_a_size;
     float field_a_throat;
+    int field_a_count;
     float field_b_ratio;
     int field_b_size;
     float field_b_throat;
+    int field_b_count;
 } config_t;
 
 config_t get_config(void);

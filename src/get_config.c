@@ -2,6 +2,7 @@
 #include "get_config.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 static int handler(void* user, const char* section, const char* name, const char* value) {
     config_t* pconfig = (config_t*)user;
@@ -29,12 +30,16 @@ static int handler(void* user, const char* section, const char* name, const char
             pconfig->field_a_size = atoi(value);
         } else if (strcmp(name, "field_a_throat") == 0) {
             pconfig->field_a_throat = atof(value);
+        } else if (strcmp(name, "field_a_count") == 0) {
+            pconfig->field_a_count = atoi(value);
         } else if (strcmp(name, "field_b_ratio") == 0) {
             pconfig->field_b_ratio = atof(value);
         } else if (strcmp(name, "field_b_size") == 0) {
             pconfig->field_b_size = atoi(value);
         } else if (strcmp(name, "field_b_throat") == 0) {
             pconfig->field_b_throat = atof(value);
+        } else if (strcmp(name, "field_b_count") == 0) {
+            pconfig->field_b_count = atoi(value);
         }
     }
     return 1;
@@ -57,9 +62,11 @@ config_t get_config() {
     printf("output_img_path: %s\n", cfg.output_img_path);
     printf("field_a_size: %d\n", cfg.field_a_size);
     printf("field_a_throat: %.2f\n", cfg.field_a_throat);
+    printf("field_a_count: %d\n", cfg.field_a_count);
     printf("field_b_ratio: %.2f\n", cfg.field_b_ratio);
     printf("field_b_size: %d\n", cfg.field_b_size);
     printf("field_b_throat: %.2f\n", cfg.field_b_throat);
+    printf("field_b_count: %d\n", cfg.field_b_count);
 
     return cfg;
 }

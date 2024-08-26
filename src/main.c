@@ -68,6 +68,7 @@ void find_roi(void)
     int ROI_H = cfg.roi_h;
     int TOP_MARGIN = cfg.top_margin;
     int roi_index = 0;
+    int pass_n = 1;
     //nms_map初始化赋值, 阈值化图像
     double img_sum = 0;
     for (int row = 0; row < H; row ++)
@@ -160,19 +161,22 @@ void find_roi(void)
         int h_flip = k % 2;
         int center_row, center_col = 0;
         int size = 0;
-        float throat = 0;
+        float mtf50_throat = 0;
+        int roi_n_throat = 0;
         float field_ratio = 0;
         if (k == 4)
         {
             field_ratio = 0;
             size = cfg.field_a_size;
-            throat = cfg.field_a_throat;
+            mtf50_throat = cfg.field_a_throat;
+            roi_n_throat = cfg.field_a_count;
         }
         else
         {
             field_ratio = cfg.field_b_ratio;
             size = cfg.field_b_size;
-            throat = cfg.field_b_size;
+            mtf50_throat = cfg.field_b_throat;
+            roi_n_throat = cfg.field_b_count;
         }
         center_row = H / 2 + (v_flip * 2 - 1) * field_ratio * H / 2;
         center_col = W / 2 + (h_flip * 2 - 1) * field_ratio * W / 2;
@@ -196,9 +200,13 @@ void find_roi(void)
                 roi_n += 1;
             }
         }
+        //检测是否通过
         mtf50 = mtf50 / roi_n;
         draw_number(left + 2, up + 2, (int)(mtf50 * 100));
-        printf("field %.2f  n = %2d mtf50 = %.2f\n", field_ratio, roi_n, mtf50);
+        printf("field %.2f  n = %2d > %2d mtf50 = %.2f > %.2f\n",
+                field_ratio, roi_n, roi_n_throat, mtf50, mtf50_throat);
+        if ((mtf50 > mtf50_throat) && (roi_n > roi_n_throat))
+            pass_n += 1;
     }
 }
 
