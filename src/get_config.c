@@ -25,6 +25,16 @@ static int handler(void* user, const char* section, const char* name, const char
         } else if (strcmp(name, "output_img_path") == 0) {
             strncpy(pconfig->output_img_path, value, MAX_STR_LEN - 1);
             pconfig->output_img_path[MAX_STR_LEN - 1] = '\0'; 
+        } else if (strcmp(name, "field_a_size") == 0) {
+            pconfig->field_a_size = atoi(value);
+        } else if (strcmp(name, "field_a_throat") == 0) {
+            pconfig->field_a_throat = atof(value);
+        } else if (strcmp(name, "field_b_ratio") == 0) {
+            pconfig->field_b_ratio = atof(value);
+        } else if (strcmp(name, "field_b_size") == 0) {
+            pconfig->field_b_size = atoi(value);
+        } else if (strcmp(name, "field_b_throat") == 0) {
+            pconfig->field_b_throat = atof(value);
         }
     }
     return 1;
@@ -45,7 +55,11 @@ config_t get_config() {
     printf("thresh: %d\n", cfg.thresh);
     printf("input_img_path: %s\n", cfg.input_img_path);
     printf("output_img_path: %s\n", cfg.output_img_path);
-
+    printf("field_a_size: %d\n", cfg.field_a_size);
+    printf("field_a_throat: %.2f\n", cfg.field_a_throat);
+    printf("field_b_ratio: %.2f\n", cfg.field_b_ratio);
+    printf("field_b_size: %d\n", cfg.field_b_size);
+    printf("field_b_throat: %.2f\n", cfg.field_b_throat);
 
     return cfg;
 }

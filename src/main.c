@@ -8,8 +8,16 @@
 #define MAX_H 4096
 #define MAX_ROI_W 512
 #define MAX_ROI_H 512
+#define MAX_ROI_N 4096
 
-config_t cfg;
+typedef struct
+{
+    int left;
+    int right;
+    int up;
+    int down;
+    float mtf50;
+}roi_result_t;
 
 #pragma pack(push, 1)
 uint8_t img[MAX_H][MAX_W];
@@ -17,7 +25,40 @@ uint8_t img_output[MAX_H][MAX_W];
 uint8_t img_thresh[MAX_H][MAX_W];
 uint8_t nms_map[MAX_H][MAX_W];
 double sfr_input[MAX_ROI_H * MAX_ROI_W];
+roi_result_t roi_results[MAX_ROI_N];
 #pragma pack(pop) 
+
+config_t cfg;
+
+void draw_box(int left, int right, int up, int down, int value)
+{
+    for (int i = up; i < down; i += 2)
+    {
+        img_output[i][left] = value;
+        img_output[i][right] = value;
+    }
+    for (int j = left; j < right; j += 2)
+    {
+        img_output[up][j] = value;
+        img_output[down][j] = value;
+    }
+}
+
+void draw_number(int left, int up, int value)
+{
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++)
+        {
+            char a = (int)value / 10 + '0';
+            char b = (int)value % 10 + '0';
+            if (font8x8_basic[a][i] & (1 << j))
+                img_output[up + i][left + j] = 255;
+            if (font8x8_basic[b][i] & (1 << j))
+                img_output[up + i][left + 10 + j] = 255;
+        }
+    }
+}
+
 
 void find_roi(void)
 {
@@ -27,6 +68,7 @@ void find_roi(void)
     int ROI_H = cfg.roi_h;
     int TOP_MARGIN = cfg.top_margin;
     int THRESH = cfg.thresh;
+    int roi_index = 0;
     //nms_map初始化赋值, 阈值化图像
     for (int row = 0; row < H; row ++)
         for (int col = 0; col < W; col ++)
@@ -36,6 +78,7 @@ void find_roi(void)
             if (img[row][col] > THRESH)
                 img_thresh[row][col] = 1;
         }
+    //提取roi，并对每一个roi进行sfr分析
     for (int row = 0; row < H - ROI_H; row ++)
     {
         for (int col = 0; col < W - ROI_W; col ++)
@@ -95,29 +138,62 @@ void find_roi(void)
                     printf("%.3f %.6f\n", i / (float)ROI_W, sfr_result.sfr[i]);
                 }
             }
-            //绘制方框
-            for (int i = up; i < down; i++)
-                for (int j = left; j < right; j++)
-                    if ((i == up) || (i == down -1) || (j == left) || (j == right-1))
-                    {
-                        if (img[i][j] < 128)
-                            img_output[i][j] = 255;
-                        else
-                            img_output[i][j] = 255;
-                    }
-            //绘制数字
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) 
-                {
-                    char a = (int)(sfr_result.mtf50 * 100) / 10 + '0';
-                    char b = (int)(sfr_result.mtf50 * 100) % 10 + '0';
-                    if (font8x8_basic[a][i] & (1 << j))
-                        img_output[up + 2 + i][left + 2 + j] = 255;
-                    if (font8x8_basic[b][i] & (1 << j))
-                        img_output[up + 2 + i][left + 10 + j] = 255;
-                }
+            //结果保存至数组
+            roi_results[roi_index].left = left;
+            roi_results[roi_index].right = right;
+            roi_results[roi_index].up = up;
+            roi_results[roi_index].down = down;
+            roi_results[roi_index].mtf50 = sfr_result.mtf50;
+            roi_index += 1;
+        }
+    }
+    //计算五个指定区域内的mtf50均值
+    for (int k = 0; k < 5; k ++)
+    {
+        //计算指定区域的中心点
+        int v_flip = k / 2;
+        int h_flip = k % 2;
+        int center_row, center_col = 0;
+        int size = 0;
+        float throat = 0;
+        float field_ratio = 0;
+        if (k == 4)
+        {
+            field_ratio = 0;
+            size = cfg.field_a_size;
+            throat = cfg.field_a_throat;
+        }
+        else
+        {
+            field_ratio = cfg.field_b_ratio;
+            size = cfg.field_b_size;
+            throat = cfg.field_b_size;
+        }
+        center_row = H / 2 + (v_flip * 2 - 1) * field_ratio * H / 2;
+        center_col = W / 2 + (h_flip * 2 - 1) * field_ratio * W / 2;
+        //计算制定区域的box边界
+        int left = center_col - size / 2;
+        int right = center_col + size / 2 - 1;
+        int up = center_row - size / 2;
+        int down = center_row + size / 2 - 1;
+        draw_box(left, right, up, down, 255);
+        //遍历roi区域，判断roi是否落入指定区域内
+        float mtf50 = 0;
+        int roi_n = 0;
+        for (int i = 0; i < roi_index; i ++)
+        {
+            roi_result_t roi = roi_results[i];
+            draw_box(roi.left, roi.right, roi.up, roi.down, 128);
+            draw_number(roi.left + 2, roi.up + 2, (int)(roi.mtf50 * 100));
+            if (right > roi.left && left < roi.right && down > roi.up && up < roi.down)
+            {
+                mtf50 += roi.mtf50;
+                roi_n += 1;
             }
         }
+        mtf50 = mtf50 / roi_n;
+        draw_number(left + 2, up + 2, (int)(mtf50 * 100));
+        printf("field %.2f  n = %2d mtf50 = %.2f\n", field_ratio, roi_n, mtf50);
     }
 }
 
