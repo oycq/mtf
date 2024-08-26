@@ -67,17 +67,22 @@ void find_roi(void)
     int ROI_W = cfg.roi_w;
     int ROI_H = cfg.roi_h;
     int TOP_MARGIN = cfg.top_margin;
-    int THRESH = cfg.thresh;
     int roi_index = 0;
     //nms_map初始化赋值, 阈值化图像
+    double img_sum = 0;
     for (int row = 0; row < H; row ++)
         for (int col = 0; col < W; col ++)
         {
             nms_map[row][col] = 0;
-            img_thresh[row][col] = 0;
-            if (img[row][col] > THRESH)
-                img_thresh[row][col] = 1;
+            img_sum += img[row][col];
         }
+    float img_mean = img_sum / (H * W);
+    for (int row = 0; row < H; row ++)
+        for (int col = 0; col < W; col ++)
+            if (img[row][col] > (img_mean * cfg.thresh_adjust))
+                img_thresh[row][col] = 1;
+            else
+                img_thresh[row][col] = 0;
     //提取roi，并对每一个roi进行sfr分析
     for (int row = 0; row < H - ROI_H; row ++)
     {
