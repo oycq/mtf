@@ -44,7 +44,7 @@ void draw_box(int left, int right, int up, int down, int value)
     }
 }
 
-void draw_number(int left, int up, int value)
+void draw_number(int left, int up, int value, int brightness)
 {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++)
@@ -52,15 +52,15 @@ void draw_number(int left, int up, int value)
             char a = (int)value / 10 + '0';
             char b = (int)value % 10 + '0';
             if (font8x8_basic[a][i] & (1 << j))
-                img_output[up + i][left + j] = 255;
+                img_output[up + i][left + j] = brightness;
             if (font8x8_basic[b][i] & (1 << j))
-                img_output[up + i][left + 10 + j] = 255;
+                img_output[up + i][left + 10 + j] = brightness;
         }
     }
 }
 
 
-void find_roi(void)
+int check_clarity(void)
 {
     int H = cfg.h;
     int W = cfg.w;
@@ -68,7 +68,7 @@ void find_roi(void)
     int ROI_H = cfg.roi_h;
     int TOP_MARGIN = cfg.top_margin;
     int roi_index = 0;
-    int pass_n = 1;
+    int pass_n = 0;
     //nms_map初始化赋值, 阈值化图像
     double img_sum = 0;
     for (int row = 0; row < H; row ++)
@@ -193,7 +193,7 @@ void find_roi(void)
         {
             roi_result_t roi = roi_results[i];
             draw_box(roi.left, roi.right, roi.up, roi.down, 128);
-            draw_number(roi.left + 2, roi.up + 2, (int)(roi.mtf50 * 100));
+            draw_number(roi.left + 2, roi.up + 2, (int)(roi.mtf50 * 100), 128);
             if (right > roi.left && left < roi.right && down > roi.up && up < roi.down)
             {
                 mtf50 += roi.mtf50;
@@ -202,11 +202,21 @@ void find_roi(void)
         }
         //检测是否通过
         mtf50 = mtf50 / roi_n;
-        draw_number(left + 2, up + 2, (int)(mtf50 * 100));
+        draw_number(left + 2, up + 2, (int)(mtf50 * 100), 255);
         printf("field %.2f  n = %2d > %2d mtf50 = %.2f > %.2f\n",
                 field_ratio, roi_n, roi_n_throat, mtf50, mtf50_throat);
         if ((mtf50 > mtf50_throat) && (roi_n > roi_n_throat))
             pass_n += 1;
+    }
+    if (pass_n == 5)
+    {
+        printf("clarity is GOOD!\n");
+        return 1;
+    }
+    else
+    {
+        printf("clarity is BAD! %d \n", pass_n);
+        return 0;
     }
 }
 
@@ -221,7 +231,8 @@ int main(void)
 
     memcpy(img_output, img, sizeof(img));
 
-    find_roi();
+    int success = check_clarity();
+
     FILE *img_output_f = fopen(cfg.output_img_path, "wb");
     for (int i = 0; i < cfg.h; i++)
         fwrite(img_output[i], sizeof(unsigned char), cfg.w, img_output_f);
