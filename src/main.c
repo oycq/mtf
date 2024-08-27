@@ -3,6 +3,7 @@
 #include "sfr_iso_oycq.h"
 #include "get_config.h"
 #include "front_8x8.h"
+#include "raw_to_bmp.h"
 
 #define MAX_W 4096
 #define MAX_H 4096
@@ -233,10 +234,11 @@ int main(void)
 
     int success = check_clarity();
 
-    FILE *img_output_f = fopen(cfg.output_img_path, "wb");
+    static uint8_t img_output_data[MAX_H * MAX_W];
     for (int i = 0; i < cfg.h; i++)
-        fwrite(img_output[i], sizeof(unsigned char), cfg.w, img_output_f);
-    fclose(img_output_f);
+        for (int j = 0; j < cfg.w; j++)
+            img_output_data[i * 640 + j] = img_output[i][j];
+    raw_to_bmp(cfg.output_img_path, cfg.w, cfg.h, img_output_data);
 
     printf("Done!");
 }
