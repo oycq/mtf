@@ -37,4 +37,4 @@ def convert_to_raw(image_path, output_path, width=640, height=480):
     raw_image.tofile(output_path)
 
 # 使用例子
-convert_to_raw('board.png', 'board_640_480.raw')
+convert_to_raw('duxin_037.bmp', 'duxin_037.raw')
