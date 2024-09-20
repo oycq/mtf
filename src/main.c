@@ -21,6 +21,7 @@ typedef struct
 }roi_result_t;
 
 #pragma pack(push, 1)
+uint8_t raw_data[MAX_H * MAX_W];
 uint8_t img[MAX_H][MAX_W];
 uint8_t img_output[MAX_H][MAX_W];
 uint8_t img_thresh[MAX_H][MAX_W];
@@ -74,6 +75,8 @@ int check_clarity(void)
     for (int row = 0; row < H; row ++)
         for (int col = 0; col < W; col ++)
             nms_map[row][col] = 0;
+    //img_output初始化
+    memcpy(img_output, img, sizeof(img));
     //二值化图像        
     for (int row = 0; row < H; row++)
         for (int col = 0; col <= W; col ++)
@@ -239,21 +242,25 @@ int check_clarity(void)
 
 int main(void)
 {
+    //读取配置文件
     cfg = get_config();
-
+    //读取raw图
     FILE *img_input_f = fopen(cfg.input_img_path, "rb");
+    fread(raw_data, sizeof(unsigned char), cfg.w * cfg.h, img_input_f);
+    //根据旋转情况，将raw图写入数组
     for (int i = 0; i < cfg.h; i++)
-        fread(img[i], sizeof(unsigned char), cfg.w, img_input_f);
-    fclose(img_input_f);
-
-    memcpy(img_output, img, sizeof(img));
-
+        for (int j = 0; j < cfg.w; j++)
+            if (cfg.rotate)
+                img[i][j] = raw_data[j * cfg.h + i];
+            else
+                img[i][j] = raw_data[i * cfg.w + j];
+    //进行清晰度检测
     int success = check_clarity();
-
+    //输出检测结果图片
     static uint8_t img_output_data[MAX_H * MAX_W];
     for (int i = 0; i < cfg.h; i++)
         for (int j = 0; j < cfg.w; j++)
-            img_output_data[i * 640 + j] = img_output[i][j];
+            img_output_data[i * cfg.w + j] = img_output[i][j];
     raw_to_bmp(cfg.output_img_path, cfg.w, cfg.h, img_output_data);
 
     printf("Done!");

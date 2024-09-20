@@ -6,6 +6,7 @@
 typedef struct {
     int w;
     int h;
+    int rotate;
     int roi_w;
     int roi_h;
     int top_margin;

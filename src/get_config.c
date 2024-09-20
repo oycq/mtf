@@ -12,6 +12,14 @@ static int handler(void* user, const char* section, const char* name, const char
             pconfig->w = atoi(value);
         } else if (strcmp(name, "h") == 0) {
             pconfig->h = atoi(value);
+        } else if (strcmp(name, "rotate") == 0) {
+            pconfig->rotate = atoi(value);
+            if (pconfig->rotate)
+            {
+                int w = pconfig->w;
+                pconfig->w = pconfig->h;
+                pconfig->h = w;
+            }
         } else if (strcmp(name, "roi_w") == 0) {
             pconfig->roi_w = atoi(value);
         } else if (strcmp(name, "roi_h") == 0) {
@@ -54,6 +62,7 @@ config_t get_config() {
     printf("h: %d\n", cfg.h);
     printf("roi_w: %d\n", cfg.roi_w);
     printf("roi_h: %d\n", cfg.roi_h);
+    printf("rotate: %d\n", cfg.rotate);
     printf("top_margin: %d\n", cfg.top_margin);
     printf("input_img_path: %s\n", cfg.input_img_path);
     printf("output_img_path: %s\n", cfg.output_img_path);
