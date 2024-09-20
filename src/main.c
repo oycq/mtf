@@ -70,21 +70,34 @@ int check_clarity(void)
     int TOP_MARGIN = cfg.top_margin;
     int roi_index = 0;
     int pass_n = 0;
-    //nms_map初始化赋值, 阈值化图像
-    double img_sum = 0;
+    //nms_map初始化赋值,
     for (int row = 0; row < H; row ++)
         for (int col = 0; col < W; col ++)
-        {
             nms_map[row][col] = 0;
-            img_sum += img[row][col];
-        }
-    float img_mean = img_sum / (H * W);
-    for (int row = 0; row < H; row ++)
-        for (int col = 0; col < W; col ++)
-            if (img[row][col] > (img_mean * cfg.thresh_adjust))
-                img_thresh[row][col] = 1;
-            else
+    //二值化图像        
+    for (int row = 0; row < H; row++)
+        for (int col = 0; col <= W; col ++)
+        {
+            int max_value = 0;
+            for (int around = -ROI_W; around < ROI_W; around++)
+            {
+                int col_around = col + around;
+                if ((col_around >=0) && (col_around < W))
+                    if (img[row][col_around] > max_value)
+                        max_value = img[row][col_around];
+            }
+            //检测当前像素是不是比周围最亮的像素暗两倍
+            if (img[row][col] < (max_value / 2))
+            {
                 img_thresh[row][col] = 0;
+                //img_output[row][col] = 0;
+            }
+            else
+            {
+                img_thresh[row][col] = 1;
+                //img_output[row][col] = 255;
+            }
+        }
     //提取roi，并对每一个roi进行sfr分析
     for (int row = 0; row < H - ROI_H; row ++)
     {
@@ -114,6 +127,7 @@ int check_clarity(void)
             if (img_thresh[centor_row][centor_left] == img_thresh[centor_row][centor_right])
                 continue;
             //检查图像每一行是否只有一个边沿
+            int is_continuous = 1;
             for (int i = up; i <= down; i++)
             {
                 int edge_count = 0;
@@ -121,8 +135,10 @@ int check_clarity(void)
                     if (img_thresh[i][j] != img_thresh[i][j + 1])
                         edge_count += 1;
                 if (edge_count != 1)
-                    continue;
+                    is_continuous = 0;
             }
+            if (!is_continuous)
+                continue;
             //建立极大值抑制
             for (int i = 0; i < ROI_H; i++)
                 for (int j = 0; j < ROI_W; j++)

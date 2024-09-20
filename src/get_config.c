@@ -18,8 +18,6 @@ static int handler(void* user, const char* section, const char* name, const char
             pconfig->roi_h = atoi(value);
         } else if (strcmp(name, "top_margin") == 0) {
             pconfig->top_margin = atoi(value);
-        } else if (strcmp(name, "thresh_adjust") == 0) {
-            pconfig->thresh_adjust = atoi(value);
         } else if (strcmp(name, "input_img_path") == 0) {
             strncpy(pconfig->input_img_path, value, MAX_STR_LEN - 1);
             pconfig->input_img_path[MAX_STR_LEN - 1] = '\0'; 
@@ -57,7 +55,6 @@ config_t get_config() {
     printf("roi_w: %d\n", cfg.roi_w);
     printf("roi_h: %d\n", cfg.roi_h);
     printf("top_margin: %d\n", cfg.top_margin);
-    printf("thresh_adjust: %d\n", cfg.thresh_adjust);
     printf("input_img_path: %s\n", cfg.input_img_path);
     printf("output_img_path: %s\n", cfg.output_img_path);
     printf("field_a_size: %d\n", cfg.field_a_size);

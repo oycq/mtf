@@ -9,7 +9,6 @@ typedef struct {
     int roi_w;
     int roi_h;
     int top_margin;
-    int thresh_adjust;
     char input_img_path[MAX_STR_LEN];
     char output_img_path[MAX_STR_LEN];
     int field_a_size;
