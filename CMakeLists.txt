@@ -11,7 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # 查找所有源文件和头文件
 # file(GLOB_RECURSE SRC "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE INCLUDE "include/*.h" "include/*.hpp")
-file(GLOB_RECURSE SRC "src/mtf/*.c" "src/common/*.c")
+#file(GLOB_RECURSE SRC "src/mtf/*.c" "src/common/*.c")
+file(GLOB_RECURSE SRC "src/dirty_lens/*.c" "src/common/*.c")
 
 # 添加可执行文件
 add_executable(mtf ${SRC} ${INCLUDE})

@@ -48,7 +48,7 @@ if exist %BUILD_DIR%\Release\mtf.exe (
     echo Build succeeded but mtf.exe not found.
 )
 
-py scripts/show_c_result.py
+@REM py scripts/show_c_result.py
 
 endlocal
 REM pause
