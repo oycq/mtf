@@ -246,7 +246,9 @@ int main(void)
     cfg = get_config();
     //读取raw图
     FILE *img_input_f = fopen(cfg.input_img_path, "rb");
-    fread(raw_data, sizeof(unsigned char), cfg.w * cfg.h, img_input_f);
+    int bytes_to_read = cfg.w * cfg.h;
+    fseek(img_input_f, -((long)bytes_to_read), SEEK_END); //兼容pgm/raw格式
+    fread(raw_data, sizeof(unsigned char), bytes_to_read, img_input_f);
     //根据旋转情况，将raw图写入数组
     for (int i = 0; i < cfg.h; i++)
         for (int j = 0; j < cfg.w; j++)
