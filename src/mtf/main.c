@@ -242,6 +242,8 @@ int check_clarity(void)
 
 int main(void)
 {
+    //重置result.txt
+    FILE *result_txt = fopen("result.txt", "w");
     //读取配置文件
     cfg = get_config();
     //读取raw图
@@ -257,7 +259,13 @@ int main(void)
             else
                 img[i][j] = raw_data[i * cfg.w + j];
     //进行清晰度检测
-    int success = check_clarity();
+    int pass = check_clarity();
+    if (pass)
+        fprintf(result_txt, "pass");
+    else
+        fprintf(result_txt, "fail");
+    fclose(result_txt);
+
     //输出检测结果图片
     static uint8_t img_output_data[MAX_H * MAX_W];
     for (int i = 0; i < cfg.h; i++)
