@@ -51,10 +51,10 @@ static int handler(void* user, const char* section, const char* name, const char
     return 1;
 }
 
-config_t get_config() {
+config_t get_config(char *config_name) {
     config_t cfg;
-    if (ini_parse("config.ini", handler, &cfg) < 0) {
-        printf("Can't load 'config.ini'\n");
+    if (ini_parse(config_name, handler, &cfg) < 0) {
+        printf("Can't load %s\n", config_name);
         exit(EXIT_FAILURE);
     }
 

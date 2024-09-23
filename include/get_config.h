@@ -21,6 +21,6 @@ typedef struct {
     int field_b_count;
 } config_t;
 
-config_t get_config(void);
+config_t get_config(char *config_name);
 
 #endif // GET_CONFIG_H

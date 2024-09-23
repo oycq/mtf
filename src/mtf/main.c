@@ -240,12 +240,13 @@ int check_clarity(void)
     }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    //重置result.txt
-    FILE *result_txt = fopen("result.txt", "w");
     //读取配置文件
-    cfg = get_config();
+    if (argc > 1)
+        cfg = get_config(argv[1]);
+    else
+        cfg = get_config("config.ini");
     //读取raw图
     FILE *img_input_f = fopen(cfg.input_img_path, "rb");
     int bytes_to_read = cfg.w * cfg.h;
@@ -260,12 +261,6 @@ int main(void)
                 img[i][j] = raw_data[i * cfg.w + j];
     //进行清晰度检测
     int pass = check_clarity();
-    if (pass)
-        fprintf(result_txt, "pass");
-    else
-        fprintf(result_txt, "fail");
-    fclose(result_txt);
-
     //输出检测结果图片
     static uint8_t img_output_data[MAX_H * MAX_W];
     for (int i = 0; i < cfg.h; i++)
