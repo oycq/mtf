@@ -1,5 +1,5 @@
 #include "ini.h"
-#include "get_config.h"
+#include "get_dirty_config.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"

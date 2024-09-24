@@ -26,12 +26,23 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM 构建项目
-cmake --build . --config Release
+REM 构建 mtf 可执行文件
+cmake --build . --config Release --target mtf
 
-REM 检查构建是否成功
+REM 检查 mtf 构建是否成功
 if errorlevel 1 (
-    echo Build failed.
+    echo mtf Build failed.
+    endlocal
+    pause
+    exit /b 1
+)
+
+REM 构建 dirty_lens 可执行文件
+cmake --build . --config Release --target dirty_lens
+
+REM 检查 dirty_lens 构建是否成功
+if errorlevel 1 (
+    echo dirty_lens Build failed.
     endlocal
     pause
     exit /b 1
@@ -40,15 +51,10 @@ if errorlevel 1 (
 REM 返回项目根目录
 cd %PROJECT_DIR%
 
-REM 执行生成的可执行文件
-if exist %BUILD_DIR%\Release\mtf.exe (
-    echo Running mtf.exe...
-    %BUILD_DIR%\Release\mtf.exe dirty_lens_config.ini
-) else (
-    echo Build succeeded but mtf.exe not found.
-)
+%BUILD_DIR%\Release\dirty_lens.exe dirty_lens_config.ini
+
+@REM %BUILD_DIR%\Release\mtf.exe config.ini
 
 py scripts/show_c_result.py
 
 endlocal
-REM pause

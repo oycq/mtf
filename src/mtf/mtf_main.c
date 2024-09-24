@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "sfr_iso_oycq.h"
-#include "get_config.h"
+#include "get_mtf_config.h"
 #include "front_8x8.h"
 #include "raw_to_bmp.h"
 

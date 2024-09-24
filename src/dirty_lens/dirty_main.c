@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "get_config.h"
+#include "get_dirty_config.h"
 #include "front_8x8.h"
 #include "raw_to_bmp.h"
 
@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
     //输出检测结果
     printf("\n%d%%---avg---%.2f---throat---%.2f\n", 40, value, cfg.throat);
     if (value < cfg.throat)
-        printf("Lens is clean");
+        printf("Lens is clean\n");
     else
-        printf("Lens is dirty");
+        printf("Lens is dirty\n");
     draw_number(0, 0, value, 128);
     raw_to_bmp(cfg.output_img_path, cfg.w, cfg.h, img);
 
