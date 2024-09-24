@@ -43,7 +43,7 @@ cd %PROJECT_DIR%
 REM 执行生成的可执行文件
 if exist %BUILD_DIR%\Release\mtf.exe (
     echo Running mtf.exe...
-    %BUILD_DIR%\Release\mtf.exe
+    %BUILD_DIR%\Release\mtf.exe dirty_lens_config.ini
 ) else (
     echo Build succeeded but mtf.exe not found.
 )
