@@ -2,8 +2,8 @@ typedef struct
 {
 	double * sfr;
 	double R2;
-	double mtf50;
+	double value;
 	double angle;
 }sfr_result_t;
 
-sfr_result_t caculate_sfr(int width, int height, double* img);
+sfr_result_t caculate_sfr(int width, int height, double* img, const char* method);

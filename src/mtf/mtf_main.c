@@ -17,7 +17,7 @@ typedef struct
     int right;
     int up;
     int down;
-    float mtf50;
+    float value;
 }roi_result_t;
 
 #pragma pack(push, 1)
@@ -151,14 +151,14 @@ int check_clarity(void)
                 for (int j = 0; j < ROI_W; j++)
                     sfr_input[i * ROI_W + j] = img[up + i][left + j] / 255.0f;
             sfr_result_t sfr_result;
-            sfr_result = caculate_sfr(ROI_W, ROI_H, sfr_input);
+            sfr_result = caculate_sfr(ROI_W, ROI_H, sfr_input, cfg.method);
             //打印结果
             //if ((left != 208-1) || (right != 241-1) || (up != 280-1) || (down != 335-1))
 			if ((left == 154-1) && (right == 187-1) && (up == 71-1) && (down != 126-1))
             {
                 printf("%.3f %5d %5d %5d %5d %6.3f %6.4f %6.3f\n",
                         sfr_result.sfr[0], left+1, right+1, up+1, down+1, 
-                        sfr_result.R2, sfr_result.mtf50, sfr_result.angle);
+                        sfr_result.R2, sfr_result.value, sfr_result.angle);
                 for (int i = 0; i < ROI_W; i++)
                 {
                     printf("%.3f %.6f\n", i / (float)ROI_W, sfr_result.sfr[i]);
@@ -169,11 +169,11 @@ int check_clarity(void)
             roi_results[roi_index].right = right;
             roi_results[roi_index].up = up;
             roi_results[roi_index].down = down;
-            roi_results[roi_index].mtf50 = sfr_result.mtf50;
+            roi_results[roi_index].value = sfr_result.value;
             roi_index += 1;
         }
     }
-    //计算五个指定区域内的mtf50均值
+    //计算五个指定区域内的mtf50/freq25/freq33均值
     for (int k = 0; k < 5; k ++)
     {
         //计算指定区域的中心点
@@ -181,21 +181,21 @@ int check_clarity(void)
         int h_flip = k % 2;
         int center_row, center_col = 0;
         int size = 0;
-        float mtf50_throat = 0;
+        float throat = 0;
         int roi_n_throat = 0;
         float field_ratio = 0;
         if (k == 4)
         {
             field_ratio = 0;
             size = cfg.field_a_size;
-            mtf50_throat = cfg.field_a_throat;
+            throat = cfg.field_a_throat;
             roi_n_throat = cfg.field_a_count;
         }
         else
         {
             field_ratio = cfg.field_b_ratio;
             size = cfg.field_b_size;
-            mtf50_throat = cfg.field_b_throat;
+            throat = cfg.field_b_throat;
             roi_n_throat = cfg.field_b_count;
         }
         center_row = H / 2 + (v_flip * 2 - 1) * field_ratio * H / 2;
@@ -207,25 +207,25 @@ int check_clarity(void)
         int down = center_row + size / 2 - 1;
         draw_box(left, right, up, down, 255);
         //遍历roi区域，判断roi是否落入指定区域内
-        float mtf50 = 0;
+        float value = 0;
         int roi_n = 0;
         for (int i = 0; i < roi_index; i ++)
         {
             roi_result_t roi = roi_results[i];
             draw_box(roi.left, roi.right, roi.up, roi.down, 128);
-            draw_number(roi.left + 2, roi.up + 2, (int)(roi.mtf50 * 100), 128);
+            draw_number(roi.left + 2, roi.up + 2, (int)(roi.value * 100), 128);
             if (right > roi.left && left < roi.right && down > roi.up && up < roi.down)
             {
-                mtf50 += roi.mtf50;
+                value += roi.value;
                 roi_n += 1;
             }
         }
         //检测是否通过
-        mtf50 = mtf50 / roi_n;
-        draw_number(left + 2, up + 2, (int)(mtf50 * 100), 255);
-        printf("field %.2f  n = %2d > %2d mtf50 = %.2f > %.2f\n",
-                field_ratio, roi_n, roi_n_throat, mtf50, mtf50_throat);
-        if ((mtf50 > mtf50_throat) && (roi_n > roi_n_throat))
+        value = value / roi_n;
+        draw_number(left + 2, up + 2, (int)(value * 100), 255);
+        printf("field %.2f  n = %2d > %2d value = %.2f > %.2f\n",
+                field_ratio, roi_n, roi_n_throat, value, throat);
+        if ((value > throat) && (roi_n > roi_n_throat))
             pass_n += 1;
     }
     if (pass_n == 5)

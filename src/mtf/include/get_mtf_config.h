@@ -12,6 +12,7 @@ typedef struct {
     int top_margin;
     char input_img_path[MAX_STR_LEN];
     char output_img_path[MAX_STR_LEN];
+    char method[MAX_STR_LEN];
     int field_a_size;
     float field_a_throat;
     int field_a_count;

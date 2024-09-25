@@ -20,7 +20,7 @@ double caculate_mtf50(double* sfr, int len)
 	return mtf50;
 }
 
-sfr_result_t caculate_sfr(int width, int height, double* img)
+sfr_result_t caculate_sfr(int width, int height, double* img, const char* method)
 {
 	static double* Freq;
 	static double* sfr;
@@ -35,7 +35,7 @@ sfr_result_t caculate_sfr(int width, int height, double* img)
 	len = len / 2;
 	for (int i = 1; i < len; i++)
 	{
-		double freq = i / (float)len  * 3.1415926;
+		double freq = i / (float)len  * 3.1415926;   
 		freq = freq / 4.0; //(g_version & 4) is false
 		sfr[i] = sfr[i] * freq / sin(freq);
 	}
@@ -43,6 +43,21 @@ sfr_result_t caculate_sfr(int width, int height, double* img)
 	sfr_result.sfr = sfr;
 	sfr_result.R2 = R2;
 	sfr_result.angle = atan(slope)* 180.0 / 3.1415926;
-	sfr_result.mtf50 = caculate_mtf50(sfr, len);
+	double mtf50 = caculate_mtf50(sfr, len);
+	double freq20 = sfr[(int)(len * 0.20)];
+	double freq25 = sfr[(int)(len * 0.25)];
+	double freq33 = sfr[(int)(len * 0.33)];
+	double freq50 = sfr[(int)(len * 0.50)];
+	sfr_result.value = 99;
+	if (strcmp(method, "mtf50") == 0)
+		sfr_result.value = mtf50;
+	if (strcmp(method, "freq20") == 0)
+		sfr_result.value = freq20;
+	if (strcmp(method, "freq25") == 0)
+		sfr_result.value = freq25;	
+	if (strcmp(method, "freq33") == 0)
+		sfr_result.value = freq33;
+	if (strcmp(method, "freq50") == 0)
+		sfr_result.value = freq50;
 	return sfr_result;
 }

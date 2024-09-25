@@ -32,6 +32,9 @@ static int handler(void* user, const char* section, const char* name, const char
         } else if (strcmp(name, "output_img_path") == 0) {
             strncpy(pconfig->output_img_path, value, MAX_STR_LEN - 1);
             pconfig->output_img_path[MAX_STR_LEN - 1] = '\0'; 
+        } else if (strcmp(name, "method") == 0) {
+            strncpy(pconfig->method, value, MAX_STR_LEN - 1);
+            pconfig->method[MAX_STR_LEN - 1] = '\0';
         } else if (strcmp(name, "field_a_size") == 0) {
             pconfig->field_a_size = atoi(value);
         } else if (strcmp(name, "field_a_throat") == 0) {
@@ -66,6 +69,7 @@ config_t get_config(char *config_name) {
     printf("top_margin: %d\n", cfg.top_margin);
     printf("input_img_path: %s\n", cfg.input_img_path);
     printf("output_img_path: %s\n", cfg.output_img_path);
+    printf("method: %s\n", cfg.method);
     printf("field_a_size: %d\n", cfg.field_a_size);
     printf("field_a_throat: %.2f\n", cfg.field_a_throat);
     printf("field_a_count: %d\n", cfg.field_a_count);
