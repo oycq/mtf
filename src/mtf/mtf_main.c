@@ -152,25 +152,16 @@ int check_clarity(void)
                     sfr_input[i * ROI_W + j] = img[up + i][left + j] / 255.0f;
             sfr_result_t sfr_result;
             sfr_result = caculate_sfr(ROI_W, ROI_H, sfr_input, cfg.method);
-            //打印结果
-            //if ((left != 208-1) || (right != 241-1) || (up != 280-1) || (down != 335-1))
-			if ((left == 154-1) && (right == 187-1) && (up == 71-1) && (down != 126-1))
-            {
-                printf("%.3f %5d %5d %5d %5d %6.3f %6.4f %6.3f\n",
-                        sfr_result.sfr[0], left+1, right+1, up+1, down+1, 
-                        sfr_result.R2, sfr_result.value, sfr_result.angle);
-                for (int i = 0; i < ROI_W; i++)
-                {
-                    printf("%.3f %.6f\n", i / (float)ROI_W, sfr_result.sfr[i]);
-                }
-            }
             //结果保存至数组
-            roi_results[roi_index].left = left;
-            roi_results[roi_index].right = right;
-            roi_results[roi_index].up = up;
-            roi_results[roi_index].down = down;
-            roi_results[roi_index].value = sfr_result.value;
-            roi_index += 1;
+            if (sfr_result.good == 1)
+            {
+                roi_results[roi_index].left = left;
+                roi_results[roi_index].right = right;
+                roi_results[roi_index].up = up;
+                roi_results[roi_index].down = down;
+                roi_results[roi_index].value = sfr_result.value;
+                roi_index += 1;
+            }
         }
     }
     //计算五个指定区域内的mtf50/freq25/freq33均值

@@ -1,5 +1,6 @@
 typedef struct
 {
+	int good;
 	double * sfr;
 	double R2;
 	double value;

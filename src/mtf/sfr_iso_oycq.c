@@ -31,6 +31,7 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 	int g_userangle = 0;
 
 	sfr_result_t sfr_result;
+	sfr_result.good = 0;
 	sfr_result.sfr = 0;
 	sfr_result.R2 = 0;
 	sfr_result.angle = 0;
@@ -57,6 +58,7 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 	double freq33 = sfr[(int)(len * 0.33)];
 	double freq50 = sfr[(int)(len * 0.50)];
 
+	sfr_result.good = 1;
 	sfr_result.sfr = sfr;
 	sfr_result.R2 = R2;
 	sfr_result.angle = atan(slope)* 180.0 / 3.1415926;
