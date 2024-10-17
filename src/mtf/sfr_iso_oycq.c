@@ -29,9 +29,21 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 	double numcycles = 0;
 	int version = 0;
 	int g_userangle = 0;
-	sfrProc(&Freq, &sfr, &len, img, (unsigned short)width, &height, 
+
+	sfr_result_t sfr_result;
+	sfr_result.sfr = 0;
+	sfr_result.R2 = 0;
+	sfr_result.angle = 0;
+	sfr_result.value = 0;
+
+	short result = sfrProc(&Freq, &sfr, &len, img, (unsigned short)width, &height,
 	        &slope, &numcycles, &center, &off, &R2, version, 0, g_userangle);
-	
+
+	if (result != 0)
+	{
+		printf("sfrProc error\n");
+		return sfr_result;
+	}
 	len = len / 2;
 	for (int i = 1; i < len; i++)
 	{
@@ -39,16 +51,15 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 		freq = freq / 4.0; //(g_version & 4) is false
 		sfr[i] = sfr[i] * freq / sin(freq);
 	}
-	sfr_result_t sfr_result;
-	sfr_result.sfr = sfr;
-	sfr_result.R2 = R2;
-	sfr_result.angle = atan(slope)* 180.0 / 3.1415926;
 	double mtf50 = caculate_mtf50(sfr, len);
 	double freq20 = sfr[(int)(len * 0.20)];
 	double freq25 = sfr[(int)(len * 0.25)];
 	double freq33 = sfr[(int)(len * 0.33)];
 	double freq50 = sfr[(int)(len * 0.50)];
-	sfr_result.value = 99;
+
+	sfr_result.sfr = sfr;
+	sfr_result.R2 = R2;
+	sfr_result.angle = atan(slope)* 180.0 / 3.1415926;
 	if (strcmp(method, "mtf50") == 0)
 		sfr_result.value = mtf50;
 	if (strcmp(method, "freq20") == 0)
