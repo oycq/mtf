@@ -33,6 +33,11 @@ for ini_file in ini_files:
         # 运行 mtf.exe XXX.ini
         result = subprocess.run([mtf_exe_path, ini_path], capture_output=True, text=True)
 
+        # 打印命令行输出结果
+        print(f"Output for {ini_file}:")
+        print(result.stdout)  # 打印标准输出
+        print(result.stderr)  # 打印标准错误输出
+
         # 获取输出结果
         output = result.stdout
         
@@ -53,3 +58,6 @@ for ini_file in ini_files:
 print(f"\nSummary:")
 print(f"Pass: {pass_count}")
 print(f"Fail: {fail_count}")
+
+# 暂停程序等待用户按键
+input("Press Enter to exit...")
