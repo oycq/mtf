@@ -18,10 +18,14 @@ static int handler(void* user, const char* section, const char* name, const char
         } else if (strcmp(name, "output_img_path") == 0) {
             strncpy(pconfig->output_img_path, value, MAX_STR_LEN - 1);
             pconfig->output_img_path[MAX_STR_LEN - 1] = '\0'; 
-        } else if (strcmp(name, "ratio") == 0) {
-            pconfig->ratio = atof(value);
-        } else if (strcmp(name, "throat") == 0) {
-            pconfig->throat = atof(value);
+        } else if (strcmp(name, "bottom_ratio") == 0) {
+            pconfig->bottom_ratio = atof(value);
+        } else if (strcmp(name, "bottom_throat") == 0) {
+            pconfig->bottom_throat = atof(value);
+        } else if (strcmp(name, "top_ratio") == 0) {
+            pconfig->top_ratio = atof(value);
+        } else if (strcmp(name, "top_throat") == 0) {
+            pconfig->top_throat = atof(value);
         }
     }
     return 1;
@@ -37,8 +41,10 @@ config_t get_config(char *config_name) {
     printf("h: %d\n", cfg.h);
     printf("input_img_path: %s\n", cfg.input_img_path);
     printf("output_img_path: %s\n", cfg.output_img_path);
-    printf("ratio: %.2f\n", cfg.ratio);
-    printf("throat: %.2f\n", cfg.throat);
+    printf("bottom_ratio: %.2f\n", cfg.bottom_ratio);
+    printf("bottom_throat: %.2f\n", cfg.bottom_throat);
+    printf("top_ratio: %.2f\n", cfg.top_ratio);
+    printf("top_throat: %.2f\n", cfg.top_throat);
 
     return cfg;
 }
