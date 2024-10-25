@@ -51,9 +51,9 @@ if errorlevel 1 (
 REM 返回项目根目录
 cd %PROJECT_DIR%
 
-%BUILD_DIR%\Release\dirty_lens.exe dirty_lens_config.ini
+REM BUILD_DIR%\Release\dirty_lens.exe dirty_lens_config.ini
 
-REM %BUILD_DIR%\Release\mtf.exe mtf_config.ini
+%BUILD_DIR%\Release\mtf.exe mtf_config.ini
 
 py scripts/show_c_result.py
 

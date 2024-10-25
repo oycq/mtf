@@ -49,6 +49,8 @@ static int handler(void* user, const char* section, const char* name, const char
             pconfig->field_b_throat = atof(value);
         } else if (strcmp(name, "field_b_count") == 0) {
             pconfig->field_b_count = atoi(value);
+        } else if (strcmp(name, "over_exposure") == 0) {
+            pconfig->over_exposure = atoi(value);
         }
     }
     return 1;
@@ -77,6 +79,7 @@ config_t get_config(char *config_name) {
     printf("field_b_size: %d\n", cfg.field_b_size);
     printf("field_b_throat: %.2f\n", cfg.field_b_throat);
     printf("field_b_count: %d\n", cfg.field_b_count);
+    printf("over_exposure: %d\n", cfg.over_exposure);
 
     return cfg;
 }

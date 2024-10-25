@@ -61,6 +61,20 @@ void draw_number(int left, int up, int value, int brightness)
     }
 }
 
+void draw_string(int left, int up, const char *str, int brightness)
+{
+    int x_offset = 0;
+    while (*str)
+    {
+        char ch = *str;
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (font8x8_basic[ch][i] & (1 << j))
+                    img_output[up + i][left + x_offset + j] = brightness;
+        x_offset += 8;
+        str++;
+    }
+}
 
 int check_clarity(void)
 {
@@ -164,7 +178,11 @@ int check_clarity(void)
             }
         }
     }
-    //计算五个指定区域内的mtf50/freq25/freq33均值
+    //计算五个指定区域内的mtf50/freq25/freq33是否满足阈值
+    //先将阈值绘制在bmp上，方便查看
+    draw_number(W - 50, 5, (int)(cfg.field_a_throat * 100), 150);
+    draw_number(W - 20, 5, (int)(cfg.field_b_throat * 100), 150);
+
     for (int k = 0; k < 5; k ++)
     {
         //计算指定区域的中心点
@@ -191,7 +209,7 @@ int check_clarity(void)
         }
         center_row = H / 2 + (v_flip * 2 - 1) * field_ratio * H / 2;
         center_col = W / 2 + (h_flip * 2 - 1) * field_ratio * W / 2;
-        //计算制定区域的box边界
+        //计算指定区域的box边界
         int left = center_col - size / 2;
         int right = center_col + size / 2 - 1;
         int up = center_row - size / 2;
@@ -219,13 +237,32 @@ int check_clarity(void)
         if ((value > throat) && (roi_n > roi_n_throat))
             pass_n += 1;
     }
+
+    //检测过曝
+    int over_exposure_count = 0;
+    for (int i = 0; i < H ; i ++)
+        for (int j = 0; j < W; j ++)
+            if (img[i][j] > cfg.over_exposure)
+                over_exposure_count ++;
+    float over_exposure_rate = over_exposure_count * 1.0 / (W * H);
+    printf("\nover_exposure_rate = %.3f\n", over_exposure_rate);
+    if (over_exposure_rate > 0.1) // 过曝区域应小于10%
+    {
+        draw_string(5, 5, "Too bright", 255);
+        printf("The light panel is too bright.\n");
+        return 0;
+    }
+
+    //判断五个区域清晰度是否都大于阈值
     if (pass_n == 5)
     {
+        draw_string(5, 5, "Pass", 255);
         printf("clarity is GOOD!\n");
         return 1;
     }
     else
     {
+        draw_string(5, 5, "Fail", 255);
         printf("clarity is BAD! %d \n", pass_n);
         return 0;
     }

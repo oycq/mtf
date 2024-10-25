@@ -20,6 +20,7 @@ typedef struct {
     int field_b_size;
     float field_b_throat;
     int field_b_count;
+    int over_exposure;
 } config_t;
 
 config_t get_config(char *config_name);
