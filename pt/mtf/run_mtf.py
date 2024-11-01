@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 # 初始化计数器
@@ -25,6 +26,14 @@ if not os.path.exists(mtf_exe_path):
 # 遍历config目录，检索所有.ini文件
 ini_files = [f for f in os.listdir(config_dir) if f.endswith('.ini')]
 
+data = []
+
+def analyze_mtf_result(output):
+    # 使用正则表达式抓取所有 "value =" 后面的数字
+    values = re.findall(r'value = ([0-9]*\.?[0-9]+)', output)
+    # 将值转换为浮点数并返回列表
+    return [float(value) for value in values]
+
 # 遍历每个.ini文件并执行mtf.exe
 for ini_file in ini_files:
     ini_path = os.path.join(config_dir, ini_file)
@@ -40,6 +49,9 @@ for ini_file in ini_files:
 
         # 获取输出结果
         output = result.stdout
+
+        mtf_result = analyze_mtf_result(output)
+        data.append(mtf_result)
         
         # 根据输出结果更新 pass 和 fail 计数器
         if "clarity is GOOD" in output:
@@ -58,6 +70,10 @@ for ini_file in ini_files:
 print(f"\nSummary:")
 print(f"Pass: {pass_count}")
 print(f"Fail: {fail_count}")
+
+# 打印解析出的数据
+for idx, result in enumerate(data):
+    print(f"Parsed values for {ini_files[idx]}: {result}")
 
 # 暂停程序等待用户按键
 input("Press Enter to exit...")
