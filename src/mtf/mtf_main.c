@@ -96,7 +96,9 @@ int check_clarity(void)
         for (int col = 0; col <= W; col ++)
         {
             int max_value = 0;
-            for (int around = -ROI_W; around < ROI_W; around++)
+            int search_range = W / 10.0f;
+            int stride = 5;
+            for (int around = -search_range; around < search_range; around+=stride)
             {
                 int col_around = col + around;
                 if ((col_around >=0) && (col_around < W))
@@ -232,7 +234,7 @@ int check_clarity(void)
         //检测是否通过
         value = value / roi_n;
         draw_number(left + 2, up + 2, (int)(value * 100), 255);
-        printf("field %.2f  n = %2d > %2d value = %.2f > %.2f\n",
+        printf("field %.2f  n = %2d > %2d value = %.4f > %.2f\n",
                 field_ratio, roi_n, roi_n_throat, value, throat);
         if ((value > throat) && (roi_n > roi_n_throat))
             pass_n += 1;
