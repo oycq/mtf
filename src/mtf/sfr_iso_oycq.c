@@ -53,7 +53,7 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 		sfr[i] = sfr[i] * freq / sin(freq);
 	}
 	double mtf50 = caculate_mtf50(sfr, len);
-	double freq20 = sfr[(int)(len * 0.20)];
+	double freq12_5  = sfr[(int)(len * 0.125)];
 	double freq25 = sfr[(int)(len * 0.25)];
 	double freq33 = sfr[(int)(len * 0.33)];
 	double freq50 = sfr[(int)(len * 0.50)];
@@ -64,8 +64,8 @@ sfr_result_t caculate_sfr(int width, int height, double* img, const char* method
 	sfr_result.angle = atan(slope)* 180.0 / 3.1415926;
 	if (strcmp(method, "mtf50") == 0)
 		sfr_result.value = mtf50;
-	if (strcmp(method, "freq20") == 0)
-		sfr_result.value = freq20;
+	if (strcmp(method, "freq12.5") == 0)
+		sfr_result.value = freq12_5;
 	if (strcmp(method, "freq25") == 0)
 		sfr_result.value = freq25;	
 	if (strcmp(method, "freq33") == 0)
